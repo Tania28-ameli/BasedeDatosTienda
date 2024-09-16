@@ -1,13 +1,74 @@
-public Entidades(string Nombre, string Descripcion, string Precio)
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Security.Cryptography;
+using Base;
+using System.Data;
+using System.Windows.Forms;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.ListView;
+using System.Drawing;
+
+
+namespace Manejadores
 {
-  Nombre=nombre;
-  Descripcion=descripcion;
-  Precio=precio;
+    public class ManejadorProductos
+    {
+        AccesoDatos b = new AccesoDatos("localhost", "root", "", "Tienda");
+        public string Insert(TextBox nombre, TextBox descripcion, TextBox precio)
+        {
+            try
+            {
+                return b.Comando($"CALL p_InsertarProductos(null, '{nombre.Text}', '{descripcion.Text}', '{precio.Text}')");
+                
+            }
+            catch (Exception)
+            {
+                return "Error de Valor";
+            }
+        }
+        public void Mostrar(DataGridView Tabla, string filtro)
+        {
+            Tabla.Columns.Clear();
+            Tabla.DataSource =
+            b.Consultar($"SELECT * FROM productos WHERE nombre='{filtro}';", "productos").Tables[0];
+            Tabla.Columns.Insert(4, Boton("Eliminar", Color.Pink));
+            Tabla.Columns.Insert(5, Boton("Modificar", Color.Green));
+            Tabla.AutoResizeColumns();
+            Tabla.AutoResizeRows();
+        }
+        DataGridViewButtonColumn Boton(string t, Color f)
+        {
+            DataGridViewButtonColumn x = new DataGridViewButtonColumn();
+            x.Text = t;
+            x.UseColumnTextForButtonValue = true;
+            x.FlatStyle = FlatStyle.Popup;
+            x.DefaultCellStyle.ForeColor = Color.White;
+            x.DefaultCellStyle.BackColor = f;
+            return x;
+        }
+
+        public void Modificar(TextBox nombre, TextBox descripcion, TextBox precio)
+        {
+            b.Comando($"CALL p_ModificarProductos(null,'{nombre.Text}','{descripcion.Text}',''{precio.Text}'');");
+            MessageBox.Show("Registro Modificado", "Atención!", MessageBoxButtons.OK, MessageBoxIcon.Information);
+       
+    }
+
+    public void Borrar(string nombre, string Dato)
+        {
+            DialogResult rs = MessageBox.Show($"Esta seguro de borrar:{Dato}", "Atencion!", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            if (rs == DialogResult.Yes)
+            {
+                b.Comando($"CALL p_EliminarProductos({nombre})");
+                MessageBox.Show("Registro Eliminado", "Atención!", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+        }
+
+    }
 }
 
-public string  Nombre {get:set}
-public string Descripcion {get:set}
-public string Precio {get:set}
 
 
 
