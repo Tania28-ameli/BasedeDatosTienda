@@ -1,61 +1,80 @@
-BASE CREATE DATABASE tienda;
-USE tienda;
-CREATE TABLE Productos
-(idproductos INT AUTO_INCREMENT PRIMARY KEY,
-nombre VARCHAR(255), 
-descripcion Varchar(255),
-precio DECIMAL);
- 
- 
- DELIMITER //
- DROP PROCEDURE if EXISTS  p_InsertarProductos;
-CREATE PROCEDURE p_InsertarProductos
-(
-	IN _idProductos INT, 
-   IN _nombre VARCHAR(255), 
-   IN _descripcion VARCHAR(255),
-   IN _precio DECIMAL
-)
-BEGIN
-   INSERT INTO productos
-   VALUES(_idProductos,_nombre,_descripcion,_precio);
-END ;
-//
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using MySql.Data.MySqlClient;
+using Mysqlx.Connection;
 
-/*CALL p_InsertarProductos(NULL,'','',00);*/
+namespace Base
+{
+    public class AccesoDatos
+    {
+        MySqlConnection con;
+        public AccesoDatos(string s, string u, string p, string bd)
+        {
+            con = new MySqlConnection($"server={s}; user={u}; password={p}; database={bd};");
+        }
 
-SELECT * FROM productos;
+        //Insetar, Borrar, Actualizar, etc
+        public string Comando(string q)
+        {
+            string rs = "";
+            try
+            {
+                MySqlCommand i = new MySqlCommand(q, con);
+                con.Open();
+                i.ExecuteNonQuery();
+                con.Close();
+                rs = "Correcto";
+            }
+            catch (Exception ex)
+            {
+                con.Close();
+                rs = ex.Message;
+            }
+            return rs;
+        }
+        public DataSet Consultar(string q, string tabla)
+        {
+            DataSet ds = new DataSet();
+            try
+            {
+                MySqlDataAdapter da = new MySqlDataAdapter(q, con);
+                con.Open();
+                da.Fill(ds, tabla);
+                con.Close();
+            }
+            catch (Exception)
+            {
+                con.Close();
+            }
+            return ds;
+        }
+    }
+}
 
-DELIMITER //
- DROP PROCEDURE if EXISTS  p_EliminarProductos;
-CREATE PROCEDURE p_EliminarProductos
-(
-   IN _nombre VARCHAR(255)
-)
-BEGIN
-   DELETE FROM productos WHERE nombre =_nombre;
-END ;
-//
 
-/*CALL p_EliminarProductos('');*/
-SELECT * FROM productos;
 
-DELIMITER //
- DROP PROCEDURE if EXISTS  p_ModificarProductos;
-CREATE PROCEDURE p_ModificarProductos
-(
-	  IN _idproductos INT, 
-   IN _nombre VARCHAR(255), 
-   IN _descripcion VARCHAR(255),
-   IN _precio DECIMAL
-)
-BEGIN
-   UPDATE productos SET 
-	nombre = _nombre,
-	descripcion=_descripcion,
-	precio = _precio 
-	WHERE idproductos = _idproductos;
-END ;
-//
 
-/*CALL p_ModificarProductos(0,'','',00);*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
