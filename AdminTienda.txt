@@ -1,74 +1,42 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Security.Cryptography;
-using Base;
-using System.Data;
 using System.Windows.Forms;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.ListView;
-using System.Drawing;
+using Manejadores;
 
-
-namespace Manejadores
+namespace PresentacionTienda
 {
-    public class ManejadorProductos
+    public partial class Form1 : Form
     {
-        AccesoDatos b = new AccesoDatos("localhost", "root", "", "Tienda");
-        public string Insert(TextBox nombre, TextBox descripcion, TextBox precio)
+        ManejadorProductos mp;
+        public Form1()
         {
-            try
-            {
-                return b.Comando($"CALL p_InsertarProductos(null, '{nombre.Text}', '{descripcion.Text}', '{precio.Text}')");
-                
-            }
-            catch (Exception)
-            {
-                return "Error de Valor";
-            }
-        }
-        public void Mostrar(DataGridView Tabla, string filtro)
-        {
-            Tabla.Columns.Clear();
-            Tabla.DataSource =
-            b.Consultar($"SELECT * FROM productos WHERE nombre='{filtro}';", "productos").Tables[0];
-            Tabla.Columns.Insert(4, Boton("Eliminar", Color.Pink));
-            Tabla.Columns.Insert(5, Boton("Modificar", Color.Green));
-            Tabla.AutoResizeColumns();
-            Tabla.AutoResizeRows();
-        }
-        DataGridViewButtonColumn Boton(string t, Color f)
-        {
-            DataGridViewButtonColumn x = new DataGridViewButtonColumn();
-            x.Text = t;
-            x.UseColumnTextForButtonValue = true;
-            x.FlatStyle = FlatStyle.Popup;
-            x.DefaultCellStyle.ForeColor = Color.White;
-            x.DefaultCellStyle.BackColor = f;
-            return x;
+            InitializeComponent();
+            mp = new ManejadorProductos();
         }
 
-        public void Modificar(TextBox nombre, TextBox descripcion, TextBox precio)
+        private void btnGuardar_Click(object sender, EventArgs e)
         {
-            b.Comando($"CALL p_ModificarProductos(null,'{nombre.Text}','{descripcion.Text}',''{precio.Text}'');");
-            MessageBox.Show("Registro Modificado", "Atención!", MessageBoxButtons.OK, MessageBoxIcon.Information);
-       
-    }
-
-    public void Borrar(string nombre, string Dato)
-        {
-            DialogResult rs = MessageBox.Show($"Esta seguro de borrar:{Dato}", "Atencion!", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-            if (rs == DialogResult.Yes)
-            {
-                b.Comando($"CALL p_EliminarProductos({nombre})");
-                MessageBox.Show("Registro Eliminado", "Atención!", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            }
+            mp.Insert(txtNombre, txtDescripcion, txtPrecio);
         }
 
+        private void tsbEliminar_Click(object sender, EventArgs e)
+        {
+            Application.Exit();
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            FrmMostrarProductos mp = new FrmMostrarProductos();
+            mp.ShowDialog();
+        }
     }
 }
-
 
 
 
